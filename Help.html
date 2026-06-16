@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    html, body { margin: 0; }
+    body { font-family: 'Roboto', Arial, sans-serif; font-size: 13px; color: #202124; line-height: 1.6; }
+
+    /* 연한 커스텀 스크롤바 — 오버레이가 아니라 여백(10px)을 차지해 버튼 위로 안 겹침 */
+    ::-webkit-scrollbar { width: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: #dadce0; border-radius: 8px;
+      border: 3px solid transparent; background-clip: padding-box;
+    }
+    ::-webkit-scrollbar-thumb:hover { background: #c4c7cc; }
+    html { scrollbar-width: thin; scrollbar-color: #dadce0 transparent; } /* Firefox */
+
+    /* 위 고정 헤더 */
+    .header { position: sticky; top: 0; z-index: 2; background: #fff;
+              padding: 16px 18px 10px;
+              display: flex; align-items: center; justify-content: space-between; }
+    h2 { font-size: 15px; margin: 0; }
+    select { padding: 6px 8px; border: 1px solid #dadce0; border-radius: 4px; font-size: 13px; background: #fff; }
+
+    /* 스크롤되는 본문 */
+    .content { padding: 4px 18px 8px; }
+    .sub { color: #5f6368; font-size: 12px; margin: 0 0 14px; }
+    .card { margin: 0 0 8px; padding: 12px 14px; background: #f8f9fa; border-radius: 8px; }
+    ol, ul { margin: 4px 0 0; padding-left: 20px; }
+    li { margin: 2px 0; }
+    b { color: #3c4043; }
+    code { background: #e8eaed; border-radius: 3px; padding: 1px 5px; font-family: 'Roboto Mono', monospace; font-size: 12px; }
+    .tip { color: #5f6368; font-size: 12px; }
+
+    /* 아래 고정 푸터 — 스크롤바 여백 위로 살짝 그림자 경계 */
+    .footer { position: sticky; bottom: 0; z-index: 2; background: #fff;
+              padding: 12px 18px; box-shadow: 0 -1px 0 #eaeaea; }
+    button { width: 100%; padding: 10px; border: 0; border-radius: 4px;
+             background: #1a73e8; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+    button:hover { background: #1666c1; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h2 id="ttl">도움말</h2>
+    <select id="lang" onchange="show()">
+      <option value="ko" selected>한국어</option>
+      <option value="en">English</option>
+    </select>
+  </div>
+
+  <div class="content">
+    <!-- 한국어 -->
+    <div id="ko">
+      <p class="sub">코드 블럭을 VSCode 스타일 다크박스(줄번호 + 구문강조)로 바꿔줍니다.</p>
+      <div class="card">
+        <ol>
+          <li>문서에서 <b>코드 부분을 드래그</b>로 선택합니다.</li>
+          <li>메뉴 <b>🎨 Code Highlighter → Apply Highlighter</b>를 누릅니다.</li>
+          <li>팝업에서 <b>언어를 입력/검색</b>하고 (예: <code>Java</code>, <code>Flutter</code>, <code>React</code>),
+              <b>Apply</b>를 누릅니다. (비워두면 자동 감지)</li>
+        </ol>
+        <ul class="tip">
+          <li>이미 변환한 박스 + 새 줄을 함께 선택해 다시 적용하면 <b>하나로 합쳐집니다.</b></li>
+          <li>둥근 따옴표(<code>“ ”</code>)는 곧은 따옴표로 자동 교정돼요.</li>
+          <li>긴 줄은 자동으로 줄바꿈되며 각 줄에 번호가 붙습니다.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- English -->
+    <div id="en" style="display:none">
+      <p class="sub">Turns code into a VSCode‑style dark box with line numbers and syntax highlighting.</p>
+      <div class="card">
+        <ol>
+          <li><b>Select your code</b> in the document by dragging.</li>
+          <li>Open <b>🎨 Code Highlighter → Apply Highlighter</b> from the menu.</li>
+          <li>In the popup, <b>type or search a language</b> (e.g. <code>Java</code>, <code>Flutter</code>, <code>React</code>)
+              and click <b>Apply</b>. (Leave it blank for auto‑detect.)</li>
+        </ol>
+        <ul class="tip">
+          <li>Select an existing box <b>+ new lines</b> and apply again to <b>merge them into one.</b></li>
+          <li>Curly quotes (<code>“ ”</code>) are auto‑corrected to straight quotes.</li>
+          <li>Long lines wrap automatically, and every line gets its own number.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <button id="closeBtn" onclick="google.script.host.close()">닫기</button>
+  </div>
+
+  <script>
+    function show() {
+      var v = document.getElementById('lang').value;
+      var ko = (v === 'ko');
+      document.getElementById('ko').style.display = ko ? '' : 'none';
+      document.getElementById('en').style.display = ko ? 'none' : '';
+      document.getElementById('ttl').textContent = ko ? '도움말' : 'Help';
+      document.getElementById('closeBtn').textContent = ko ? '닫기' : 'Close';
+      window.scrollTo(0, 0);
+    }
+  </script>
+</body>
+</html>

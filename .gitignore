@@ -1,0 +1,11 @@
+# clasp — scriptId/문서 ID가 들어있어 공개 저장소에는 올리지 않음
+.clasp.json
+.clasprc.json
+
+# 에디터/도구
+.claude/
+.DS_Store
+
+# 테스트용 생성 파일
+test-1000.md
+/tmp/

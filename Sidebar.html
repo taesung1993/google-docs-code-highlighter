@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Roboto', Arial, sans-serif; font-size: 13px; color: #202124; margin: 0; padding: 14px; }
+    h2 { font-size: 14px; margin: 0 0 10px; }
+    label { display: block; font-weight: 500; margin: 0 0 4px; }
+    input#langInput { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #dadce0;
+                      border-radius: 4px; font-size: 13px; background: #fff; }
+    button { width: 100%; margin-top: 12px; padding: 11px; border: 0; border-radius: 4px;
+             background: #1a73e8; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+    button:hover { background: #1666c1; }
+    button:disabled { background: #9aa0a6; cursor: default; }
+    #status { margin-top: 12px; font-size: 13px; min-height: 20px; line-height: 1.5;
+              padding: 8px 10px; border-radius: 6px; background: #f1f3f4; }
+    #status.ok { color: #188038; background: #e6f4ea; }
+    #status.err { color: #d93025; background: #fce8e6; }
+    #status.busy { color: #1a73e8; background: #e8f0fe; }
+    .hint { color: #5f6368; font-size: 11.5px; margin-top: 4px; }
+    .help { margin-top: 16px; padding-top: 12px; border-top: 1px solid #eee; color: #5f6368; font-size: 12px; line-height: 1.7; }
+    .help b { color: #3c4043; }
+    .help ol { margin: 6px 0 0; padding-left: 18px; }
+  </style>
+</head>
+<body>
+  <h2>🎨 코드 하이라이터</h2>
+
+  <label for="langInput">언어 (검색 가능)</label>
+  <input id="langInput" list="langlist" value="Java" autocomplete="off"
+         placeholder="예: Java, React, Flutter, Vue…">
+  <datalist id="langlist">
+    <option>자동 감지</option>
+    <option>Java</option>
+    <option>Kotlin</option>
+    <option>Android</option>
+    <option>Python</option>
+    <option>JavaScript</option>
+    <option>TypeScript</option>
+    <option>React</option>
+    <option>React Native</option>
+    <option>Vue</option>
+    <option>Dart</option>
+    <option>Flutter</option>
+    <option>Swift</option>
+    <option>Objective-C</option>
+    <option>C</option>
+    <option>C++</option>
+    <option>C#</option>
+    <option>Go</option>
+    <option>Rust</option>
+    <option>PHP</option>
+    <option>Ruby</option>
+    <option>SQL</option>
+    <option>HTML</option>
+    <option>XML</option>
+    <option>CSS</option>
+    <option>SCSS</option>
+    <option>JSON</option>
+    <option>YAML</option>
+    <option>Bash / Shell</option>
+    <option>Markdown</option>
+  </datalist>
+  <div class="hint" id="hint"></div>
+
+  <button id="go" onclick="run()">선택 영역 변환</button>
+  <div id="status">코드를 드래그로 선택한 뒤 버튼을 누르세요.</div>
+
+  <div class="help">
+    <b>쓰는 법</b>
+    <ol>
+      <li>문서에서 <b>코드 부분을 드래그</b>로 선택</li>
+      <li>위 칸에 <b>언어를 입력/검색</b> → <b>선택 영역 변환</b> 클릭</li>
+    </ol>
+    버튼이 가끔 한 번에 안 눌리면, 메뉴 <b>🎨 코드 하이라이터 → 선택 영역 변환</b>으로도 됩니다.
+  </div>
+
+  <script>
+    // 친근한 이름(프레임워크 포함) → highlight.js 언어 id 매핑.
+    // 프레임워크는 기반 언어로: React/RN→javascript, Android→kotlin, Flutter→dart, Vue/HTML→xml.
+    var LANG_MAP = {
+      '자동 감지': 'auto', 'auto': 'auto', '자동': 'auto',
+      'java': 'java',
+      'kotlin': 'kotlin', 'android': 'kotlin',
+      'python': 'python', 'py': 'python',
+      'javascript': 'javascript', 'js': 'javascript', 'node': 'javascript',
+      'typescript': 'typescript', 'ts': 'typescript',
+      'react': 'javascript', 'jsx': 'javascript', 'react native': 'javascript', 'reactnative': 'javascript', 'rn': 'javascript', 'tsx': 'typescript',
+      'vue': 'xml',
+      'dart': 'dart', 'flutter': 'dart',
+      'swift': 'swift', 'objective-c': 'objectivec', 'objc': 'objectivec', 'objectivec': 'objectivec',
+      'c': 'c', 'c++': 'cpp', 'cpp': 'cpp', 'c#': 'csharp', 'csharp': 'csharp',
+      'go': 'go', 'golang': 'go', 'rust': 'rust', 'php': 'php', 'ruby': 'ruby',
+      'sql': 'sql', 'html': 'xml', 'xml': 'xml', 'css': 'css', 'scss': 'scss', 'sass': 'scss',
+      'json': 'json', 'yaml': 'yaml', 'yml': 'yaml', 'bash / shell': 'bash', 'bash': 'bash', 'shell': 'bash', 'sh': 'bash',
+      'markdown': 'markdown', 'md': 'markdown'
+    };
+    function resolveLang(raw) {
+      var key = (raw || '').trim().toLowerCase();
+      if (!key) return 'auto';
+      return LANG_MAP[key] || 'auto'; // 모르면 자동 감지로
+    }
+    // 입력에 따라 매핑 결과를 살짝 보여준다
+    document.getElementById('langInput').addEventListener('input', function () {
+      var id = resolveLang(this.value);
+      document.getElementById('hint').textContent =
+        this.value.trim() ? '→ 적용 언어: ' + id : '';
+    });
+
+    var running = false;
+    function run() {
+      if (running) return;            // 중복 클릭 무시
+      running = true;
+      var btn = document.getElementById('go');
+      var status = document.getElementById('status');
+      var lang = resolveLang(document.getElementById('langInput').value);
+      console.log('[하이라이터] run() 호출, 언어=' + lang);
+      btn.disabled = true;
+      btn.textContent = '⏳ 변환 중…';
+      status.className = 'busy';
+      status.textContent = '문서를 변환하고 있어요…';
+      google.script.run
+        .withSuccessHandler(function (res) {
+          console.log('[하이라이터] 완료: ' + JSON.stringify(res));
+          done(res.ok ? 'ok' : 'err', (res.ok ? '✅ ' : '⚠️ ') + res.msg);
+        })
+        .withFailureHandler(function (err) {
+          console.log('[하이라이터] 실패: ' + (err && err.message));
+          done('err', '⚠️ 오류: ' + (err && err.message));
+        })
+        .convertSelection(lang);
+    }
+    function done(cls, msg) {
+      running = false;
+      var btn = document.getElementById('go');
+      var status = document.getElementById('status');
+      btn.disabled = false;
+      btn.textContent = '선택 영역 변환';
+      status.className = cls;
+      status.textContent = msg;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <style>
+    body { font-family: 'Roboto', Arial, sans-serif; font-size: 13px; color: #202124; margin: 0; padding: 14px; }
+    label { display: block; font-weight: 500; margin: 0 0 4px; }
+    input#langInput { width: 100%; box-sizing: border-box; padding: 8px; border: 1px solid #dadce0;
+                      border-radius: 4px; font-size: 14px; }
+    .hint { color: #5f6368; font-size: 11.5px; margin-top: 4px; min-height: 14px; }
+    button { width: 100%; margin-top: 10px; padding: 11px; border: 0; border-radius: 4px;
+             background: #1a73e8; color: #fff; font-size: 14px; font-weight: 600; cursor: pointer; }
+    button:hover { background: #1666c1; }
+    button:disabled { background: #9aa0a6; cursor: default; }
+    #status { margin-top: 10px; font-size: 12.5px; min-height: 16px; line-height: 1.4; }
+    #status.ok { color: #188038; } #status.err { color: #d93025; } #status.busy { color: #1a73e8; }
+  </style>
+</head>
+<body>
+  <label for="langInput">언어 (검색)</label>
+  <input id="langInput" list="langlist" autocomplete="off" autofocus
+         placeholder="예: Java, React, Flutter, Vue, ts…">
+  <datalist id="langlist">
+    <option>자동 감지</option><option>Java</option><option>Kotlin</option><option>Android</option>
+    <option>Python</option><option>JavaScript</option><option>TypeScript</option><option>React</option>
+    <option>React Native</option><option>Vue</option><option>Dart</option><option>Flutter</option>
+    <option>Swift</option><option>Objective-C</option><option>C</option><option>C++</option><option>C#</option>
+    <option>Go</option><option>Rust</option><option>PHP</option><option>Ruby</option><option>SQL</option>
+    <option>HTML</option><option>XML</option><option>CSS</option><option>SCSS</option><option>JSON</option>
+    <option>YAML</option><option>Bash / Shell</option><option>Markdown</option>
+  </datalist>
+  <div class="hint" id="hint"></div>
+  <button id="go" onclick="run()">Apply · 변환</button>
+  <div id="status">코드를 선택한 상태에서 언어를 고르고 변환하세요.</div>
+
+  <script>
+    var LANG_MAP = {
+      '자동 감지':'auto','auto':'auto','자동':'auto','java':'java','kotlin':'kotlin','android':'kotlin',
+      'python':'python','py':'python','javascript':'javascript','js':'javascript','node':'javascript',
+      'typescript':'typescript','ts':'typescript','react':'javascript','jsx':'javascript',
+      'react native':'javascript','reactnative':'javascript','rn':'javascript','tsx':'typescript',
+      'vue':'xml','dart':'dart','flutter':'dart','swift':'swift','objective-c':'objectivec','objc':'objectivec','objectivec':'objectivec',
+      'c':'c','c++':'cpp','cpp':'cpp','c#':'csharp','csharp':'csharp','go':'go','golang':'go','rust':'rust',
+      'php':'php','ruby':'ruby','sql':'sql','html':'xml','xml':'xml','css':'css','scss':'scss','sass':'scss',
+      'json':'json','yaml':'yaml','yml':'yaml','bash / shell':'bash','bash':'bash','shell':'bash','sh':'bash',
+      'markdown':'markdown','md':'markdown'
+    };
+    function resolveLang(raw) {
+      var key = (raw || '').trim().toLowerCase();
+      return key ? (LANG_MAP[key] || 'auto') : 'auto';
+    }
+    var inp = document.getElementById('langInput');
+    inp.addEventListener('input', function () {
+      document.getElementById('hint').textContent =
+        this.value.trim() ? '→ 적용 언어: ' + resolveLang(this.value) : '';
+    });
+    inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') run(); });
+
+    var running = false;
+    function run() {
+      if (running) return;
+      running = true;
+      var btn = document.getElementById('go');
+      var status = document.getElementById('status');
+      var lang = resolveLang(inp.value);
+      btn.disabled = true; btn.textContent = '⏳ 변환 중…';
+      status.className = 'busy'; status.textContent = '문서를 변환하고 있어요…';
+      google.script.run
+        .withSuccessHandler(function (res) {
+          if (res.ok) {
+            status.className = 'ok'; status.textContent = '✅ ' + res.msg;
+            setTimeout(function () { google.script.host.close(); }, 900);
+          } else {
+            running = false; btn.disabled = false; btn.textContent = 'Apply · 변환';
+            status.className = 'err'; status.textContent = '⚠️ ' + res.msg;
+          }
+        })
+        .withFailureHandler(function (err) {
+          running = false; btn.disabled = false; btn.textContent = 'Apply · 변환';
+          status.className = 'err'; status.textContent = '⚠️ 오류: ' + (err && err.message);
+        })
+        .convertSelection(lang);
+    }
+  </script>
+</body>
+</html>
