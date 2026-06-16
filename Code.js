@@ -23,7 +23,7 @@ function showLangSearchDialog() {
 // "Help" → 한/영 사용법 팝업.
 function showHelpDialog() {
   var html = HtmlService.createHtmlOutputFromFile('Help')
-    .setWidth(460).setHeight(470);
+    .setWidth(460).setHeight(500);
   DocumentApp.getUi().showModalDialog(html, '🎨 Code Highlighter');
 }
 
