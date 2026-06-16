@@ -5,8 +5,6 @@ Turns code inside Google Docs into a **VSCode‑style dark box** with line numbe
 
 마크다운을 Google Docs로 올리면 코드블럭이 평범한 Arial 텍스트로 풀려 가독성이 떨어지는 문제를 해결합니다.
 
-![demo](docs/demo.png)
-
 ---
 
 ## ✨ 기능 / Features
