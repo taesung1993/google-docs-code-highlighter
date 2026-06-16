@@ -1,0 +1,10 @@
+# Apps Script에 올리지 않을 것들 (GitHub Pages/문서/메타)
+docs/**
+.github/**
+node_modules/**
+**/*.md
+LICENSE
+.gitignore
+.clasp.json
+.claspignore
+test-*.md
