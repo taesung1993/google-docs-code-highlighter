@@ -1,3 +1,4 @@
+// CI/CD 자동 배포 테스트 — main push → GitHub Actions → clasp push
 // Code.js — Google Docs용 코드 하이라이터 애드온 (선택 영역 변환 방식)
 // 사용 흐름: 코드 부분을 드래그로 선택 → 사이드바에서 언어 고르고 버튼 클릭
 //          → 그 자리를 VSCode 스타일 다크박스(줄번호 + 구문강조 표)로 교체.
