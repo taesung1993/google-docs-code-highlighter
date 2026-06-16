@@ -17,7 +17,7 @@ function onOpen() {
 function showLangSearchDialog() {
   var html = HtmlService.createHtmlOutputFromFile('Dialog')
     .setWidth(360).setHeight(210);
-  DocumentApp.getUi().showModalDialog(html, 'Apply Highlighter');
+  DocumentApp.getUi().showModalDialog(html, 'Apply');
 }
 
 // "Help" → 한/영 사용법 팝업.
