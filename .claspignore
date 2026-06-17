@@ -1,5 +1,6 @@
 # Apps Script에 올리지 않을 것들 (GitHub Pages/문서/메타)
 docs/**
+assets/**
 .github/**
 node_modules/**
 **/*.md
